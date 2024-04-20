@@ -30,19 +30,19 @@ type User struct {
 	EncryptedPassword string             `bson:"EncryptedPassword" json:"-"`
 }
 
-func (params PostUserParams) Validate() []string {
-	errors := []string{}
+func (params PostUserParams) Validate() map[string]string {
+	errors := map[string]string{}
 	if len(params.FirstName) < minFirstName {
-		errors = append(errors, fmt.Sprintf("firstName length should be at least %d characters", minFirstName))
+		errors["firstName"] = fmt.Sprintf("firstName length should be at least %d characters", minFirstName)
 	}
 	if len(params.LastName) < minLastName {
-		errors = append(errors, fmt.Sprintf("lastName length should be at least %d characters", minLastName))
+		errors["lastName"] = fmt.Sprintf("lastName length should be at least %d characters", minLastName)
 	}
 	if len(params.Password) < minPassword {
-		errors = append(errors, fmt.Sprintf("password length should be at least %d characters", minPassword))
+		errors["password"] = fmt.Sprintf("password length should be at least %d characters", minPassword)
 	}
 	if !isEmailValid(params.Email) {
-		errors = append(errors, "email is invalid")
+		errors["email"] = "email is invalid"
 	}
 	return errors
 }
