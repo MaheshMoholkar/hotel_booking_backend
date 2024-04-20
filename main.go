@@ -37,5 +37,4 @@ func main() {
 	apiv1.Get("/users", userHandler.HandleGetUsers)
 	apiv1.Get("/user/:id", userHandler.HandleGetUser)
 	app.Listen(*listenAddr)
-
 }
