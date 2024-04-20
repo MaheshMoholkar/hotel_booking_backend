@@ -14,6 +14,7 @@ const userColl = "users"
 type UserStore interface {
 	GetUserById(context.Context, string) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error)
+	PostUser(context.Context, *types.User) (*types.User, error)
 }
 
 type MongoUserStore struct {
@@ -39,6 +40,7 @@ func (s *MongoUserStore) GetUsers(ctx context.Context) ([]*types.User, error) {
 	}
 	return users, nil
 }
+
 func (s *MongoUserStore) GetUserById(ctx context.Context, id string) (*types.User, error) {
 	// validate id
 	oid, err := primitive.ObjectIDFromHex((id))
@@ -50,4 +52,13 @@ func (s *MongoUserStore) GetUserById(ctx context.Context, id string) (*types.Use
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (s *MongoUserStore) PostUser(ctx context.Context, user *types.User) (*types.User, error) {
+	res, err := s.coll.InsertOne(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	user.ID = res.InsertedID.(primitive.ObjectID)
+	return user, nil
 }
