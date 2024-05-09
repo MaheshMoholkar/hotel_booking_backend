@@ -2,8 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
-	"log"
 
 	"github.com/MaheshMoholkar/hotel_booking_backend/types"
 	"go.mongodb.org/mongo-driver/bson"
@@ -14,7 +12,7 @@ import (
 type HotelStore interface {
 	InsertHotel(context.Context, *types.Hotel) (*types.Hotel, error)
 	UpdateHotel(context.Context, bson.M, bson.M) error
-	GetHotel(context.Context)
+	GetHotels(context.Context, bson.M) ([]*types.Hotel, error)
 }
 
 type MongoHotelStore struct {
@@ -29,18 +27,16 @@ func NewMongoHotelStore(client *mongo.Client, dbname string) *MongoHotelStore {
 	}
 }
 
-func (s *MongoHotelStore) GetHotel(ctx context.Context) {
-	cursor, err := s.coll.Find(ctx, bson.M{})
+func (s *MongoHotelStore) GetHotels(ctx context.Context, filter bson.M) ([]*types.Hotel, error) {
+	cursor, err := s.coll.Find(ctx, filter)
 	if err != nil {
-		fmt.Print(err)
+		return nil, err
 	}
-	for cursor.Next(context.TODO()) {
-		var result types.Hotel
-		if err := cursor.Decode(&result); err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%+v\n", result)
+	var hotels []*types.Hotel
+	if err := cursor.All(ctx, &hotels); err != nil {
+		return nil, err
 	}
+	return hotels, nil
 }
 
 func (s *MongoHotelStore) UpdateHotel(ctx context.Context, filter bson.M, update bson.M) error {
