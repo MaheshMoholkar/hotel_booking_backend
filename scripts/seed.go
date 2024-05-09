@@ -60,7 +60,6 @@ func main() {
 	seedHotel("Bellucia", "France")
 	seedHotel("Aqua Oasis", "Hawaii")
 	seedHotel("Coastal Paradise", "Dubai")
-	hotelStore.GetHotel(ctx)
 }
 
 func init() {
