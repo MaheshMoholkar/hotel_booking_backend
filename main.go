@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/MaheshMoholkar/hotel_booking_backend/api"
+	"github.com/MaheshMoholkar/hotel_booking_backend/api/middleware"
 	"github.com/MaheshMoholkar/hotel_booking_backend/db"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -35,9 +36,16 @@ func main() {
 		roomStore  = db.NewMongoRoomStore(client, db.DBNAME)
 		hotelStore = db.NewMongoHotelStore(client, db.DBNAME)
 		// initialize handlers
+		authHandler  = api.NewAuthHandler(userStore)
 		userHandler  = api.NewUserHandler(userStore)
 		hotelHandler = api.NewHotelHandler(hotelStore, roomStore)
 	)
+	// middlewares
+	apiv1.Use(middleware.VerifyToken())
+
+	// auth handler
+	app.Post("/auth/token", authHandler.HandleGetToken)
+
 	// user handlers
 	apiv1.Get("/users", userHandler.HandleGetUsers)
 	apiv1.Get("/user/:id", userHandler.HandleGetUser)
