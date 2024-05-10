@@ -35,9 +35,15 @@ func main() {
 		userStore  = db.NewMongoUserStore(client, db.DBNAME)
 		roomStore  = db.NewMongoRoomStore(client, db.DBNAME)
 		hotelStore = db.NewMongoHotelStore(client, db.DBNAME)
+		store      = &db.Store{
+			UserStore:  userStore,
+			HotelStore: hotelStore,
+			RoomStore:  roomStore,
+		}
 		// initialize handlers
 		authHandler  = api.NewAuthHandler(userStore)
 		userHandler  = api.NewUserHandler(userStore)
+		roomHandler  = api.NewRoomHandler(store)
 		hotelHandler = api.NewHotelHandler(hotelStore, roomStore)
 	)
 	// middlewares
@@ -56,5 +62,6 @@ func main() {
 	// hotels handlers
 	apiv1.Get("/hotel", hotelHandler.HandleGetHotels)
 	apiv1.Get("/rooms/:id", hotelHandler.HandleGetRooms)
+	apiv1.Get("/rooms/:id/book", roomHandler.HandleBookRoom)
 	app.Listen(*listenAddr)
 }
